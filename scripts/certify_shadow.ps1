@@ -3,6 +3,8 @@ Set-StrictMode -Version Latest
 
 $Repo = Split-Path -Parent $PSScriptRoot
 $Python = Join-Path $Repo ".venv\Scripts\python.exe"
+$Artifacts = Join-Path $Repo "artifacts"
+$Report = Join-Path $Artifacts "OMNIROUTE_CERTIFICATION.md"
 
 Write-Host "============================================================"
 Write-Host "CLEMENT - P0-03 OMNIROUTE SHADOW CERTIFICATION"
@@ -11,6 +13,8 @@ Write-Host "============================================================"
 if (-not (Test-Path -LiteralPath $Python)) {
     throw "VENV_PYTHON_NOT_FOUND=$Python"
 }
+
+New-Item -ItemType Directory -Force -Path $Artifacts | Out-Null
 
 Push-Location $Repo
 try {
@@ -32,11 +36,12 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "PYTEST_FAILED" }
     Write-Host "PYTEST=PASS"
 
-    & $Python scripts\certify_shadow.py --report OMNIROUTE_CERTIFICATION.md
+    & $Python scripts\certify_shadow.py --report $Report
     if ($LASTEXITCODE -ne 0) { throw "LIVE_CERTIFICATION_FAILED" }
 
     Write-Host "LIVE_CERTIFICATION=PASS_OR_PARTIAL"
-    Write-Host "REPORT=$Repo\OMNIROUTE_CERTIFICATION.md"
+    Write-Host "REPORT=$Report"
+    Write-Host "WORKTREE_AFTER=$((@(& git status --porcelain).Count -eq 0) ? 'CLEAN' : 'DIRTY')"
     Write-Host "MERGE_EXECUTED=NO"
     Write-Host "TAG_CREATED=NO"
     Write-Host "RELEASE_CREATED=NO"
