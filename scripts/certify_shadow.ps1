@@ -20,6 +20,9 @@ Push-Location $Repo
 try {
     $Status = @(& git status --porcelain)
     if ($Status.Count -gt 0) {
+        Write-Host "WORKTREE_DIRTY_BEGIN"
+        foreach ($Line in $Status) { Write-Host $Line }
+        Write-Host "WORKTREE_DIRTY_END"
         throw "WORKTREE_NOT_CLEAN"
     }
 
@@ -48,6 +51,9 @@ try {
     }
     else {
         Write-Host "WORKTREE_AFTER=DIRTY"
+        Write-Host "WORKTREE_AFTER_DIRTY_BEGIN"
+        foreach ($Line in $AfterStatus) { Write-Host $Line }
+        Write-Host "WORKTREE_AFTER_DIRTY_END"
     }
 
     Write-Host "MERGE_EXECUTED=NO"
