@@ -1,37 +1,33 @@
 # CLEMENT_STUDIO_OMNIROUTE
 
-P0-03 - certification deterministe d'OmniRoute pour CLEMENT STUDIO.
+P0-03 - OmniRoute certification and final-provider accounting.
 
-## Objectifs
+## Invariants
 
-- classifier sans ambiguite les endpoints `LOCAL`, `PROXY`, `CLOUD` ;
-- garantir que `http://localhost:20128/v1` (OmniRoute) reste `PROXY` ;
-- garantir que `http://localhost:1234/v1` (LM Studio) reste `LOCAL` ;
-- garantir qu'OpenRouter reste `CLOUD` ;
-- baser la comptabilite sur le fournisseur final reel, jamais uniquement sur le point d'entree ;
-- conserver les tokens techniques tout en mettant les tokens facturables a zero pour un fournisseur final local ;
-- rendre un verdict `INCONCLUSIVE` si un proxy ne revele pas son fournisseur final.
+- `http://localhost:20128` / OmniRoute is **PROXY**, never LOCAL.
+- `http://localhost:1234` / LM Studio is **LOCAL**.
+- OpenRouter is **CLOUD**.
+- Unknown loopback endpoints are **UNKNOWN**, never assumed free/local.
+- Billing is derived from the **resolved final provider**, not the ingress proxy.
+- A proxy route without a resolved final provider is `INCONCLUSIVE`.
+- A final LOCAL provider keeps technical usage but sets billable tokens/quota/cost to zero.
 
-## Regles de comptabilite
+## Certification layers
 
-| Endpoint d'entree | Fournisseur final | Billing mode | Billable tokens |
-|---|---|---|---:|
-| LOCAL | LOCAL | LOCAL_UNLIMITED | 0 |
-| PROXY | LOCAL | LOCAL_UNLIMITED | 0 |
-| PROXY | CLOUD | METERED | technical_tokens |
-| PROXY | inconnu | INCONCLUSIVE | 0 tant que non resolu |
-| CLOUD | CLOUD | METERED | technical_tokens |
+1. `core.py` - endpoint classification and final-provider accounting.
+2. `certifier.py` - live `/v1/models` reachability, latency and model-count probes.
+3. `routing.py` - route attempts, fallback/failover evidence, tokens, tools, context and errors.
+4. `scripts/certify_shadow.py` - live Shadow report generator.
+5. `scripts/certify_shadow.ps1` - Windows PowerShell 5.1 wrapper.
 
-## Certification cible
+The live report is written under `artifacts/OMNIROUTE_CERTIFICATION.md` and remains outside Git tracking.
 
-La campagne Shadow doit couvrir : health, models, routing, latency, tokens, fallback, failover, tools, context et errors, puis produire `OMNIROUTE_CERTIFICATION.md`.
-
-## Developpement
+## Shadow
 
 ```powershell
-py -3.13 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe -m pytest
+cd "C:\Users\Shadow\Documents\CLEMENT_STUDIO\04_TOOLS\CLEMENT_STUDIO_OMNIROUTE"
+git pull --ff-only origin feat/p0-omniroute-certification
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\scripts\certify_shadow.ps1"
 ```
 
-Aucun merge, tag ou release n'est implique par cette branche feature.
+No merge, tag or release is performed by the certification scripts.
