@@ -41,7 +41,15 @@ try {
 
     Write-Host "LIVE_CERTIFICATION=PASS_OR_PARTIAL"
     Write-Host "REPORT=$Report"
-    Write-Host "WORKTREE_AFTER=$((@(& git status --porcelain).Count -eq 0) ? 'CLEAN' : 'DIRTY')"
+
+    $AfterStatus = @(& git status --porcelain)
+    if ($AfterStatus.Count -eq 0) {
+        Write-Host "WORKTREE_AFTER=CLEAN"
+    }
+    else {
+        Write-Host "WORKTREE_AFTER=DIRTY"
+    }
+
     Write-Host "MERGE_EXECUTED=NO"
     Write-Host "TAG_CREATED=NO"
     Write-Host "RELEASE_CREATED=NO"
