@@ -11,10 +11,12 @@ P0-03 - OmniRoute certification and final-provider accounting.
 - Billing is derived from the **resolved final provider**, not the ingress proxy.
 - A proxy route without a resolved final provider is `INCONCLUSIVE`.
 - A final LOCAL provider keeps technical usage but sets billable tokens/quota/cost to zero.
+- Resolved OmniRoute provider identifiers are classified fail-closed; unknown provider IDs remain `UNKNOWN`.
+- `antigravity` is treated as a remote CLOUD provider, not as LOCAL.
 
 ## Certification layers
 
-1. `core.py` - endpoint classification and final-provider accounting.
+1. `core.py` - endpoint classification, resolved-provider classification and final-provider accounting.
 2. `certifier.py` - live `/v1/models` reachability, latency and model-count probes.
 3. `routing.py` - route attempts, fallback/failover evidence, tokens, tools, context and errors.
 4. `scripts/certify_shadow.py` - live Shadow report generator.
