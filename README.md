@@ -13,6 +13,7 @@ P0-03 - OmniRoute certification and final-provider accounting.
 - A final LOCAL provider keeps technical usage but sets billable tokens/quota/cost to zero.
 - Resolved OmniRoute provider identifiers are classified fail-closed; unknown provider IDs remain `UNKNOWN`.
 - `antigravity` is treated as a remote CLOUD provider, not as LOCAL.
+- Model/client technical usage and provider billable usage are preserved separately when they differ.
 
 ## Certification layers
 
