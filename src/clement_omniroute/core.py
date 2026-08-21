@@ -115,14 +115,25 @@ def decide_accounting(
     final_provider_kind: EndpointKind | None,
     technical_tokens: int,
     reported_cost_eur: float | None = None,
+    provider_billable_tokens: int | None = None,
 ) -> AccountingDecision:
     """Decide billing from the actual final provider, not the entry endpoint.
+
+    ``technical_tokens`` preserves the model/client-reported technical usage.
+    ``provider_billable_tokens`` may carry a provider/proxy-specific billable
+    count when it differs from the technical total. If omitted, cloud billing
+    falls back to ``technical_tokens`` for backwards compatibility.
 
     A PROXY endpoint is only an ingress classification. Billing remains
     inconclusive until the proxy resolves the final provider as LOCAL or CLOUD.
     """
 
     tokens = max(0, int(technical_tokens))
+    billed_tokens = (
+        tokens
+        if provider_billable_tokens is None
+        else max(0, int(provider_billable_tokens))
+    )
     final_kind = final_provider_kind or endpoint_kind
 
     if endpoint_kind == EndpointKind.PROXY and final_provider_kind in {None, EndpointKind.PROXY, EndpointKind.UNKNOWN}:
@@ -157,11 +168,11 @@ def decide_accounting(
             final_provider_kind=EndpointKind.CLOUD,
             billing_mode="METERED",
             technical_tokens=tokens,
-            billable_tokens=tokens,
-            quota_used=tokens,
+            billable_tokens=billed_tokens,
+            quota_used=billed_tokens,
             cost_eur=reported_cost_eur,
             verdict="PASS",
-            reason="Final provider is cloud; technical tokens remain billable.",
+            reason="Final provider is cloud; provider billable usage is preserved separately from technical usage.",
         )
 
     return AccountingDecision(
