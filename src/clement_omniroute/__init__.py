@@ -3,6 +3,7 @@ from .core import (
     EndpointKind,
     EndpointSpec,
     classify_endpoint,
+    classify_final_provider,
     decide_accounting,
 )
 
@@ -11,6 +12,7 @@ __all__ = [
     "EndpointKind",
     "EndpointSpec",
     "classify_endpoint",
+    "classify_final_provider",
     "decide_accounting",
 ]
 
