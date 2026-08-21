@@ -2,6 +2,7 @@ from clement_omniroute import (
     EndpointKind,
     EndpointSpec,
     classify_endpoint,
+    classify_final_provider,
     decide_accounting,
 )
 
@@ -49,6 +50,18 @@ def test_explicit_kind_used_after_hard_invariants() -> None:
     assert classify_endpoint(
         EndpointSpec("Private endpoint", "https://example.invalid/v1", EndpointKind.CLOUD)
     ) is EndpointKind.CLOUD
+
+
+def test_antigravity_final_provider_is_cloud() -> None:
+    assert classify_final_provider("antigravity") is EndpointKind.CLOUD
+
+
+def test_lm_studio_final_provider_is_local() -> None:
+    assert classify_final_provider("lm-studio") is EndpointKind.LOCAL
+
+
+def test_unknown_final_provider_is_fail_closed() -> None:
+    assert classify_final_provider("future-provider") is EndpointKind.UNKNOWN
 
 
 def test_direct_local_accounting_is_unlimited() -> None:
