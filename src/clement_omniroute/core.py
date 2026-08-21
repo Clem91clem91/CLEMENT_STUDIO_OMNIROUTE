@@ -32,6 +32,30 @@ class AccountingDecision:
     reason: str
 
 
+_LOCAL_PROVIDER_IDS = frozenset({
+    "lm-studio",
+    "lm_studio",
+    "lmstudio",
+    "ollama",
+    "vllm",
+    "local",
+})
+
+_CLOUD_PROVIDER_IDS = frozenset({
+    "antigravity",
+    "agy",
+    "anthropic",
+    "claude",
+    "codex",
+    "gemini",
+    "gemini-cli",
+    "github",
+    "openai",
+    "openrouter",
+    "qwen",
+})
+
+
 def _normalized_host(url: str) -> tuple[str, int | None]:
     parsed = urlparse(url if "://" in url else f"http://{url}")
     host = (parsed.hostname or "").strip().lower()
@@ -64,6 +88,24 @@ def classify_endpoint(spec: EndpointSpec) -> EndpointKind:
 
     # Unknown loopback services are deliberately not assumed LOCAL because a
     # local listener may itself be a proxy to a paid remote provider.
+    return EndpointKind.UNKNOWN
+
+
+def classify_final_provider(provider_id: str | None) -> EndpointKind:
+    """Classify a resolved OmniRoute final-provider identifier.
+
+    This is deliberately fail-closed. Only provider identifiers whose runtime
+    semantics are known are mapped. Everything else remains UNKNOWN so a proxy
+    request cannot be certified as billable/local without provider evidence.
+    """
+
+    normalized = (provider_id or "").strip().lower()
+    if not normalized:
+        return EndpointKind.UNKNOWN
+    if normalized in _LOCAL_PROVIDER_IDS or normalized.startswith("local-"):
+        return EndpointKind.LOCAL
+    if normalized in _CLOUD_PROVIDER_IDS:
+        return EndpointKind.CLOUD
     return EndpointKind.UNKNOWN
 
 
