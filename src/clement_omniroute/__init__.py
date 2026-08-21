@@ -6,6 +6,13 @@ from .core import (
     classify_final_provider,
     decide_accounting,
 )
+from .dynamic_routing import (
+    AgentRoutePlan,
+    AgentRoutingRequest,
+    CandidateScore,
+    DynamicAgentRouter,
+    ModelCandidate,
+)
 
 __all__ = [
     "AccountingDecision",
@@ -14,6 +21,11 @@ __all__ = [
     "classify_endpoint",
     "classify_final_provider",
     "decide_accounting",
+    "AgentRoutePlan",
+    "AgentRoutingRequest",
+    "CandidateScore",
+    "DynamicAgentRouter",
+    "ModelCandidate",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
