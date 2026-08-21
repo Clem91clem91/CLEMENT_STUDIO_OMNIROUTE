@@ -102,6 +102,22 @@ def test_proxy_resolved_to_cloud_is_metered() -> None:
     assert result.cost_eur == 0.12
 
 
+def test_cloud_accounting_preserves_distinct_provider_billable_usage() -> None:
+    result = decide_accounting(
+        endpoint_kind=EndpointKind.PROXY,
+        final_provider_kind=EndpointKind.CLOUD,
+        technical_tokens=186,
+        provider_billable_tokens=101,
+        reported_cost_eur=0.0,
+    )
+    assert result.verdict == "PASS"
+    assert result.billing_mode == "METERED"
+    assert result.technical_tokens == 186
+    assert result.billable_tokens == 101
+    assert result.quota_used == 101
+    assert result.cost_eur == 0.0
+
+
 def test_unresolved_proxy_is_inconclusive() -> None:
     result = decide_accounting(
         endpoint_kind=EndpointKind.PROXY,
